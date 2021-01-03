@@ -81,8 +81,8 @@ Qed.
 Lemma binomS: forall n k: nat, binom (S n) (S k) == binom n k + binom n (S k).
 Proof. intros n k.
        unfold binom.
-       case_eq (k <=? n); intros.
-       - case_eq (S k <=? n); intros Ha.
+       case_eq (k <=? n); intros.  (*1*)
+       - case_eq (S k <=? n); intros Ha.  (*1.a*)
          + assert (Hb: (S k <=? S n) = true).
            { apply Nat.leb_le in H.
              apply Nat.leb_le. lia. }
@@ -99,14 +99,14 @@ Proof. intros n k.
              { lia. }
              rewrite H1. simpl. lia.
              apply Nat.leb_le in H. lia.
-           } rewrite Hc. 
+           } rewrite Hc.  (*1.a.1*)
            specialize (Qinv_plus_distr (Z.of_nat (S k * fact n)) 
                                        (Z.of_nat ((n - k) * fact n)) 
                                        (Pos.of_nat (fact (S k) * fact (n - k)))); intros Hd.
            rewrite <- !Nat2Z.inj_add in Hd.
            assert (He: ((S k * fact n + (n - k) * fact n) = (fact n * (k + 1) + fact n * (n - k)))%nat ).
            { lia. }
-           rewrite <- He.
+           rewrite <- He.  (*1.a.2*)
            rewrite <- Hd.
            assert (H1: (Z.of_nat (S k * fact n) # Pos.of_nat ((S k) * fact k * fact (n - k))) == 
                        (Z.of_nat (fact n) # Pos.of_nat (fact k * fact (n - k)))).
@@ -131,7 +131,7 @@ Proof. intros n k.
                 split.
                 +++ apply fact_neq_0.
                 +++ apply fact_neq_0. }
-           rewrite H1. 
+           rewrite H1.  (*1.a.3*)
            assert (H2: (Z.of_nat ((n - k) * fact n) # Pos.of_nat (S k * fact k * fact (n - k))) ==
                        (Z.of_nat (fact n) # Pos.of_nat (S k * fact k * fact (n - S k)))).
            {   unfold Qeq.
@@ -167,8 +167,9 @@ Proof. intros n k.
                      split.
                      ** apply fact_neq_0.
                      ** apply fact_neq_0. }
-           rewrite H2. reflexivity.
-         + assert (H1: n = k).
+           rewrite H2.  (*1.a.4*)
+           reflexivity.
+         + assert (H1: n = k).  (*1.b*)
            { apply Nat.leb_nle in Ha. 
              apply Nat.leb_le in H.
              lia. } 
@@ -188,7 +189,7 @@ Proof. intros n k.
            ++ apply Nat.eqb_neq.
               apply plus_nz. left.
               apply fact_neq_0. 
-       - assert (H1: S k <=? S n = false).
+       - assert (H1: S k <=? S n = false).  (*2*)
           { apply Nat.leb_nle in H.
             apply Nat.leb_nle. lia. }
          rewrite H1.
@@ -204,18 +205,18 @@ Defined.
 Lemma binomNat : forall n k: nat, { m:nat | Z.of_nat m # Pos.of_nat 1 == (binom n k) }.
 Proof. intro n.
        induction n; intros.
-       - case_eq k; intros.
-         + simpl. exists 1%nat. simpl. reflexivity.
-         + simpl. exists 0%nat. simpl. reflexivity.
+       - case_eq k; intros.  (*1*)
+         + simpl. exists 1%nat. simpl. reflexivity.  (*1.a*)
+         + simpl. exists 0%nat. simpl. reflexivity.  (*1.b*)
        - simpl. 
-         case_eq k; intros.
-         + exists 1%nat.
+         case_eq k; intros.  (*2*)
+         + exists 1%nat.  (*2.a*)
            unfold binom. simpl. rewrite Nat.add_0_r.
            unfold Qeq. simpl. rewrite Zeq. lia.
            apply Nat.eqb_neq.
            apply plus_nz. left.
            apply fact_neq_0.
-         + pose proof IHn as IHn'.
+         + pose proof IHn as IHn'.  (*2.b*)
            specialize (IHn' (k-1)%nat).
            specialize (IHn k).
            destruct IHn as (u, IHu).
