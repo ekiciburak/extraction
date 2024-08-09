@@ -142,17 +142,20 @@ Lemma jmeq_eq: forall n m u A (v1: @vector A n) (v2: @vector A m) (v3: @vector A
      | eq_refl => (appendV v1 (appendV v2 v3))
     end).
 Proof. intros.
-       induction v1; intros.
-       induction v2; intros.
-       induction v3; intros. subst.
        apply JMeq_eq. simpl. cbn.
        apply vector_jmeq. easy.
        cbn.
        unfold ul.
-       induction ul0; intros.
+       destruct v1 as (l1, p1).
+       destruct v2 as (l2, p2).
+       destruct v3 as (l3, p3).
+       simpl.
+       subst.
+       revert l2 l3.
+       induction l1; intros. subst.
        simpl. easy.
-       simpl. rewrite IHul0.
-       destruct (plus_assoc (len ul0) (len ul1) (len ul2)).
+       simpl in *. cbn. rewrite IHl1.
+       destruct (plus_assoc (len l1) (len l2) (len l3)).
        simpl.
        easy.
 Qed.
